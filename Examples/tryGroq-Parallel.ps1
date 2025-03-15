@@ -1,3 +1,4 @@
+# Import the PSAISuite module from the parent directory of the script's root directory
 Clear-Host
 
 $models = $(
@@ -21,9 +22,14 @@ $models = $(
     'llama-3.2-90b-vision-preview'
 )
 
-$models | ForEach-Object -Parallel {
+$message = New-ChatMessage -Prompt "What is the capital of France?"
+
+$models | ForEach-Object -Verbose -Parallel {
+    # Import the PSAISuite module from the parent directory of the script's root directory since its not available in the parallel by default runs
+    Import-Module $using:PSScriptRoot\..\PSAISuite.psd1 -Force 
+
     $model = $_
-    Invoke-ChatCompletion 'What is the capital of France?' groq:$model | Select-Object Model, Timestamp, Response
+    Invoke-ChatCompletion $using:message groq:$model | Select-Object Model, Timestamp, Response
 } 
 
 ''

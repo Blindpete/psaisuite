@@ -7,8 +7,8 @@ The Invoke-ChatCompletion function sends a prompt to a specified AI model provid
 The model provider and model name must be specified in the 'provider:model' format. The function dynamically constructs 
 the provider-specific function name and invokes it to get the response.
 
-.PARAMETER Prompt
-The prompt string to be sent to the AI model for completion. This parameter is mandatory.
+.PARAMETER Messages
+The messages hashtable to be sent to the AI model for completion. This parameter is mandatory.
 
 .PARAMETER Model
 The model to be used for the completion request, specified in 'provider:model' format. Defaults to "openai:gpt-4o-mini".
@@ -21,17 +21,20 @@ the response text, model information, and timestamp is returned.
 A switch parameter that, if specified, measures and includes the elapsed time of the API request in the output.
 
 .EXAMPLE
-Invoke-ChatCompletion -Prompt "Hello, world!" -Model "openai:gpt-4o-mini"
+$Message = New-ChatMessage -Prompt "Hello, world!"
+Invoke-ChatCompletion -Messages $Message -Model "openai:gpt-4o-mini"
 
 Sends the prompt "Hello, world!" to the OpenAI GPT-4o-mini model and returns the completion response.
 
 .EXAMPLE
+$Message = New-ChatMessage -Prompt "Hello, world!"
 Invoke-ChatCompletion -Prompt "Hello, world!" -Model "openai:gpt-4o-mini" -TextOnly
 
 Sends the prompt "Hello, world!" to the OpenAI GPT-4o-mini model and returns only the completion response text.
 
 .EXAMPLE
-Invoke-ChatCompletion -Prompt "Hello, world!" -Model "openai:gpt-4o-mini" -IncludeElapsedTime
+$Message = New-ChatMessage -Prompt "Hello, world!"
+Invoke-ChatCompletion -Messages $Message -Model "openai:gpt-4o-mini" -IncludeElapsedTime
 
 Sends the prompt and returns the completion response with the elapsed time information.
 
@@ -44,7 +47,7 @@ function Invoke-ChatCompletion {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [string]$Prompt,
+        [hashtable[]]$Messages,
         [string]$Model = "openai:gpt-4o-mini",
         [switch]$TextOnly,
         [switch]$IncludeElapsedTime
@@ -73,7 +76,16 @@ function Invoke-ChatCompletion {
     }
     
     # Invoke the provider-specific implementation
-    $responseText = & $providerFunction $modelName $Prompt
+    $functionParams = @{
+        ModelName = $modelName
+        Messages  = $Messages
+    }
+
+    if ($SystemRole) {
+        $functionParams.SystemRole = $SystemRole
+    }
+
+    $responseText = & $providerFunction @functionParams
     
     # Stop measuring execution time if requested
     if ($IncludeElapsedTime) {
@@ -94,7 +106,7 @@ function Invoke-ChatCompletion {
     else {
         # Create the base response object
         $responseObject = [PSCustomObject]@{
-            Prompt    = $Prompt
+            Messages  = ($Messages | ConvertTo-Json -Compress)
             Response  = $responseText
             Model     = $Model
             Provider  = $provider
@@ -105,6 +117,10 @@ function Invoke-ChatCompletion {
         # Add elapsed time if requested
         if ($IncludeElapsedTime) {
             $responseObject | Add-Member -MemberType NoteProperty -Name 'ElapsedTime' -Value $elapsedTime
+        }
+
+        if ($SystemRole) {
+            $responseObject | Add-Member -MemberType NoteProperty -Name 'SystemRole' -Value $SystemRole
         }
         
         return $responseObject

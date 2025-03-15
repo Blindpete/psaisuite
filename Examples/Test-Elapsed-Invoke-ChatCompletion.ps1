@@ -15,8 +15,8 @@ $models = $(
     'deepseek:deepseek-chat'
 )
 
-$prompt = "What is the capital of France?"
+$message = New-ChatMessage -Prompt "What is the capital of France?"
 
 foreach ($model in $models) {    
-    Invoke-ChatCompletion -Prompt $prompt $model -IncludeElapsedTime | Select-Object ElapsedTime, model, prompt, response
+    Invoke-ChatCompletion -Message $message $model -IncludeElapsedTime | Select-Object ElapsedTime, model, prompt, response
 }

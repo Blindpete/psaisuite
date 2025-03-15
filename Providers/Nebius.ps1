@@ -10,11 +10,12 @@
 .PARAMETER ModelName
     The name of the Nebius model to use.
 
-.PARAMETER Prompt
-    The text prompt to send to the model.
+.PARAMETER Messages
+    An array of hashtables containing the messages to send to the model.
 
 .EXAMPLE
-    $response = Invoke-NebiusProvider -ModelName 'yandexgpt' -Prompt 'Write a PowerShell function to calculate factorial'
+    $Message = New-ChatMessage -Prompt 'Write a PowerShell function to calculate factorial'
+    $response = Invoke-NebiusProvider -ModelName 'yandexgpt' -Message $Message
     
 .NOTES
     Requires the NebiusKey environment variable to be set with a valid API key.
@@ -25,7 +26,7 @@ function Invoke-NebiusProvider {
         [Parameter(Mandatory)]
         [string]$ModelName,
         [Parameter(Mandatory)]
-        [string]$Prompt
+        [hashtable[]]$Messages
     )
     
     $headers = @{
@@ -35,12 +36,7 @@ function Invoke-NebiusProvider {
     
     $body = @{
         'model'    = $ModelName
-        'messages' = @(
-            @{
-                'role'    = 'user'
-                'content' = $Prompt
-            }
-        )
+        'messages' = $Messages
     }
 
     $Uri = "https://api.studio.nebius.ai/v1/chat/completions"

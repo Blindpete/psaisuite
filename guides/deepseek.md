@@ -25,12 +25,12 @@ $model_id = "deepseek-chat"
 
 # Create the model identifier
 $model = "{0}:{1}" -f $provider, $model_id
-
-Invoke-CodeCompletion -Prompt "What is the capital of France?" -Model $model
+$Message = New-ChatMessage -Prompt "What is the capital of France?"
+Invoke-ChatCompletion -Message $Message -Model $model
 ```
 
 ```shell
-Prompt    : What is the capital of France?
+Messages  : {"role":"user","content":"What is the capital of France?"}
 Response  : The capital of France is **Paris**. Known for its rich history, iconic landmarks like the Eiffel Tower, and vibrant culture, Paris is one of the most famous cities in the 
             world.
 Model     : deepseek:deepseek-chat

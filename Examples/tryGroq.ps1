@@ -8,6 +8,8 @@ $groqModels = $(
     'mixtral-8x7b-32768'
 )
 
+$message = New-ChatMessage -Prompt "capital of france"
+
 $groqModels | ForEach-Object {
-    Invoke-ChatCompletion "capital of france" "groq:$_"
+    Invoke-ChatCompletion $message "groq:$_"
 } | Select-Object Model, Response

@@ -9,11 +9,12 @@
 .PARAMETER ModelName
     The name of the OpenAI model to use (e.g., 'gpt-4', 'gpt-3.5-turbo').
 
-.PARAMETER Prompt
-    The text prompt to send to the model.
+.PARAMETER Messages
+    An array of hashtables containing the messages to send to the model.
 
 .EXAMPLE
-    $response = Invoke-OpenAIProvider -ModelName 'gpt-4' -Prompt 'Write a PowerShell function to calculate factorial'
+    $Message = New-ChatMessage -Prompt 'Write a PowerShell function to calculate factorial'
+    $response = Invoke-OpenAIProvider -ModelName 'gpt-4' -Message $Message
     
 .NOTES
     Requires the OpenAIKey environment variable to be set with a valid API key.
@@ -25,7 +26,7 @@ function Invoke-OpenAIProvider {
         [Parameter(Mandatory)]
         [string]$ModelName,
         [Parameter(Mandatory)]
-        [string]$Prompt
+        [hashtable[]]$Messages
     )
     
     $headers = @{
@@ -36,12 +37,7 @@ function Invoke-OpenAIProvider {
     
     $body = @{
         'model'    = $ModelName
-        'messages' = @(
-            @{
-                'role'    = 'user'
-                'content' = $Prompt
-            }
-        )
+        'messages' = $Messages
     }
 
     $Uri = "https://api.openai.com/v1/chat/completions"

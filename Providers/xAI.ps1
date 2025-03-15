@@ -9,11 +9,12 @@
 .PARAMETER ModelName
     The name of the xAI model to use (e.g., 'grok-1').
 
-.PARAMETER Prompt
-    The text prompt to send to the model.
+.PARAMETER Messages
+    An array of hashtables containing the messages to send to the model.
 
 .EXAMPLE
-    $response = Invoke-XAIProvider -ModelName 'grok-1' -Prompt 'Explain quantum computing'
+    $Message = New-ChatMessage -Prompt 'Explain quantum computing'
+    $response = Invoke-XAIProvider -ModelName 'grok-1' -Message $Message
     
 .NOTES
     Requires the xAIKey environment variable to be set with a valid API key.
@@ -24,7 +25,7 @@ function Invoke-XAIProvider {
         [Parameter(Mandatory)]
         [string]$ModelName,
         [Parameter(Mandatory)]
-        [string]$Prompt
+        [hashtable[]]$Messages
     )
     
     $headers = @{
@@ -34,12 +35,7 @@ function Invoke-XAIProvider {
     
     $body = @{
         'model'    = $ModelName
-        'messages' = @(
-            @{
-                'role'    = 'user'
-                'content' = $Prompt
-            }
-        )
+        'messages' = $Messages
     }
 
     $Uri = "https://api.x.ai/v1/chat/completions"

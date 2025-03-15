@@ -25,12 +25,12 @@ $model_id = "gpt-4o"
 
 # Create the model identifier
 $model = "{0}:{1}" -f $provider, $model_id
-
-Invoke-ChatCompletion -Prompt "What is the capital of France?" -Model $model
+$Message = New-ChatMessage -Prompt "What is the capital of France?"
+Invoke-ChatCompletion -Message $Message -Model $model
 ```
 
 ```shell
-Prompt    : What is the capital of France?
+Messages  : {"role":"user","content":"What is the capital of France?"}
 Response  : The capital of France is Paris.
 Model     : openai:gpt-4o
 Provider  : openai

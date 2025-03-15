@@ -14,10 +14,10 @@ $models = $(
     # 'deepseek:deepseek-chat'
 )
 
-$prompt = "What is the capital of France?"
+$message = New-ChatMessage -Prompt "What is the capital of France?"
 
 foreach ($model in $models) {
     Write-Host "Testing $model"
     
-    Invoke-ChatCompletion -Prompt $prompt -Model $model
+    Invoke-ChatCompletion -Message $message -Model $model
 }

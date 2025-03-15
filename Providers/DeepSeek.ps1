@@ -9,11 +9,12 @@
 .PARAMETER ModelName
     The name of the DeepSeek model to use (e.g., 'deepseek-chat', 'deepseek-coder').
 
-.PARAMETER Prompt
-    The text prompt to send to the model.
+.PARAMETER Messages
+    An array of hashtables containing the messages to send to the model.
 
 .EXAMPLE
-    $response = Invoke-DeepSeekProvider -ModelName 'deepseek-coder' -Prompt 'Write a binary search algorithm in Python'
+    $Message = New-ChatMessage -Prompt 'Write a binary search algorithm in Python'
+    $response = Invoke-DeepSeekProvider -ModelName 'deepseek-coder' -Message $Message
     
 .NOTES
     Requires the DeepSeekKey environment variable to be set with a valid API key.
@@ -24,7 +25,7 @@ function Invoke-DeepSeekProvider {
         [Parameter(Mandatory)]
         [string]$ModelName,
         [Parameter(Mandatory)]
-        [string]$Prompt
+        [hashtable[]]$Messages
     )
     
     $headers = @{
@@ -34,12 +35,7 @@ function Invoke-DeepSeekProvider {
     
     $body = @{
         'model'    = $ModelName
-        'messages' = @(
-            @{
-                'role'    = 'user'
-                'content' = $Prompt
-            }
-        )
+        'messages' = [hashtable[]]$Messages
     }
 
     $Uri = "https://api.deepseek.com/v1/chat/completions"

@@ -1,3 +1,14 @@
+# v0.2.0
+
+Big thank you to [the-mentor](https://github.com/the-mentor)
+- Added `messages` parameter to `Invoke-ChatCompletion` for multiple messages/roles
+- Updated all 
+    - Providers 
+    - Guides
+    - Examples
+
+Great work, great contribution!
+
 # v0.1.1
 
 - Added Nebius provider

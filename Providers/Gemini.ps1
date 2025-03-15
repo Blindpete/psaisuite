@@ -10,11 +10,12 @@
     The name of the Gemini model to use (e.g., 'gemini-1.0-pro', 'gemini-2.0-flash-exp').
     Note: Use the exact model name as specified by Google without any prefix.
 
-.PARAMETER Prompt
-    The text prompt to send to the model.
+.PARAMETER Messages
+    An array of hashtables containing the messages to send to the model.
 
 .EXAMPLE
-    $response = Invoke-GeminiProvider -ModelName 'gemini-1.5-pro' -Prompt 'Explain how CRISPR works'
+    $Message = New-ChatMessage -Prompt 'Explain how CRISPR works'
+    $response = Invoke-GeminiProvider -ModelName 'gemini-1.5-pro' -Message $Message
     
 .NOTES
     Requires the GeminiKey environment variable to be set with a valid API key.
@@ -26,7 +27,7 @@ function Invoke-GeminiProvider {
         [Parameter(Mandatory)]
         [string]$ModelName,
         [Parameter(Mandatory)]
-        [string]$Prompt
+        [hashtable[]]$Messages
     )
     
     if (-not $env:GeminiKey) {
@@ -35,6 +36,18 @@ function Invoke-GeminiProvider {
     
     $apiKey = $env:GeminiKey
     
+    foreach ($Msg in $Messages) {
+        if ($Msg.role -eq 'system') {
+            $SystemRole = $Msg.content
+        }
+        elseif ($Msg.role -eq 'user') {
+            $Prompt = $Msg.content
+        }
+        else {
+            throw "Invalid message role: $($Msg.role)"
+        }
+    }
+   
     $body = @{
         'contents' = @(
             @{
@@ -46,6 +59,16 @@ function Invoke-GeminiProvider {
                 )
             }
         )
+    }
+    
+    if ($SystemRole) {
+        $body['system_instruction'] = @{
+            'parts' = @(
+                @{
+                    'text' = $SystemRole
+                }
+            )
+        }
     }
 
     # Gemini uses the API key as a URL parameter
