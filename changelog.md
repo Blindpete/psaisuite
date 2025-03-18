@@ -1,3 +1,8 @@
+# v0.2.1
+
+- Added Perplexity provider
+- See [guides](guides/perplexity.md)
+
 # v0.2.0
 
 Big thank you to [the-mentor](https://github.com/the-mentor)

@@ -14,6 +14,7 @@ Currently supported providers are:
 - [Mistral](guides/mistral.md)
 - [Nebius](guides/nebius.md)
 - [OpenAI](guides/openai.md)
+- [Perplexity](guides/perplexity.md)
 - [xAI](guides/xai.md)
 
 ## In Action
