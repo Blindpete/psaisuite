@@ -8,7 +8,9 @@ The model provider and model name must be specified in the 'provider:model' form
 the provider-specific function name and invokes it to get the response.
 
 .PARAMETER Messages
-The messages hashtable to be sent to the AI model for completion. This parameter is mandatory.
+The messages to be sent to the AI model for completion. This parameter is mandatory and can accept either:
+- A string, which will be wrapped in a user message automatically
+- A hashtable array containing properly formatted chat messages
 
 .PARAMETER Model
 The model to be used for the completion request, specified in 'provider:model' format. Defaults to "openai:gpt-4o-mini".
@@ -27,10 +29,9 @@ Invoke-ChatCompletion -Messages $Message -Model "openai:gpt-4o-mini"
 Sends the prompt "Hello, world!" to the OpenAI GPT-4o-mini model and returns the completion response.
 
 .EXAMPLE
-$Message = New-ChatMessage -Prompt "Hello, world!"
-Invoke-ChatCompletion -Prompt "Hello, world!" -Model "openai:gpt-4o-mini" -TextOnly
+Invoke-ChatCompletion -Messages "Hello, world!" -Model "openai:gpt-4o-mini" -TextOnly
 
-Sends the prompt "Hello, world!" to the OpenAI GPT-4o-mini model and returns only the completion response text.
+Sends the string "Hello, world!" as a user message to the OpenAI GPT-4o-mini model and returns only the completion response text.
 
 .EXAMPLE
 $Message = New-ChatMessage -Prompt "Hello, world!"
@@ -47,11 +48,21 @@ function Invoke-ChatCompletion {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [hashtable[]]$Messages,
+        [object]$Messages,
         [string]$Model = "openai:gpt-4o-mini",
         [switch]$TextOnly,
         [switch]$IncludeElapsedTime
     )
+    
+    # Convert string input to a proper message format if needed
+    if ($Messages -is [string]) {
+        $Messages = @(
+            @{
+                'role'    = 'user'
+                'content' = $Messages
+            }
+        )
+    }
     
     # Parse provider and model from the Model parameter
     if ($Model -match "^([^:]+):(.+)$") {
@@ -94,7 +105,7 @@ function Invoke-ChatCompletion {
     }
     
     # Return the result based on the TextOnly switch
-    if ($TextOnly) {
+    if ($TextOnly -or [System.Convert]::ToBoolean($env:PSAISUITE_TEXT_ONLY)) {
         # Format the text output to include the elapsed time if requested
         if ($IncludeElapsedTime) {
             return "$responseText`n`nElapsed Time: $($elapsedTime.ToString('hh\:mm\:ss\.fff'))"

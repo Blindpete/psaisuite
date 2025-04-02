@@ -1,3 +1,7 @@
+# v0.2.2
+
+- Updated `Invoke-ChatCompletion` to accept a string as input for the `message` parameter, in addition to the existing hashtable format. This allows users to pass a simple string directly, making it easier to use without needing to create a hashtable first.
+
 # v0.2.1
 
 - Added Perplexity provider
